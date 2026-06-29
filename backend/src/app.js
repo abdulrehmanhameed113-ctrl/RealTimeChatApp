@@ -1,19 +1,21 @@
-const express=require("express");
-const cors=require("cors");
-const cookieParser=require("cookie-parser");
-const app=express();
+const express = require("express");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+
+const authRoutes = require("./routes/auth.routes");
+
+const app = express();
+
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
-app.get("/", (req,res)=>{
+
+app.use("/api/auth", authRoutes);
+
+app.get("/", (req, res) => {
     res.json({
-        "message": "Welcome to the Chat APP Api"
+        message: "Welcome to Chat App API",
     });
 });
-app.get("/about",(req,res)=>{
-    res.json({
-        "project": "real time chat application",
-        "intern":"Abdul Rehman" 
-    });
-})
-module.exports=app;
+
+module.exports = app;
