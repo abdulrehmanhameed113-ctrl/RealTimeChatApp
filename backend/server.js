@@ -1,17 +1,20 @@
 const dotenv = require("dotenv");
+dotenv.config();
+
+console.log("Cloud Name:", process.env.CLOUDINARY_CLOUD_NAME);
+console.log("API Key:", process.env.CLOUDINARY_API_KEY);
+console.log("API Secret:", process.env.CLOUDINARY_API_SECRET);
+
 const app = require("./src/app");
 const connectDB = require("./src/config/db");
-
-dotenv.config();
-console.log(process.cwd());
-console.log(process.env);
-console.log(process.env.MONGODB_URI);
-
+const { initializeSocket } = require("./src/lib/socket");
 
 connectDB();
 
+const server = initializeSocket(app);
+
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-    console.log(` Server is running on port ${PORT}`);
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
