@@ -7,14 +7,18 @@ const { registerSchema, loginSchema } = require("../validators/auth.validator");
 const {
     registerUser,
     loginUser,
+    refreshToken,
+    logoutUser,
     getProfile,
-     updateProfile,
+    updateProfile,
 } = require("../controllers/auth.controller");
 
 const protect = require("../middleware/auth.middleware");
 
 router.post("/register", validate(registerSchema), registerUser);
 router.post("/login", validate(loginSchema), loginUser);
+router.post("/refresh", refreshToken);
+router.post("/logout", logoutUser);
 
 // Protected Route
 router.get("/profile", protect, getProfile);

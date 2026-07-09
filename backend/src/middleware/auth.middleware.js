@@ -15,7 +15,7 @@ const protect = async (req, res, next) => {
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        const user = await User.findById(decoded.userId).select("-password");
+        const user = await User.findById(decoded.userId).select("-password -refreshTokens");
 
         if (!user) {
             return res.status(404).json({
@@ -28,6 +28,12 @@ const protect = async (req, res, next) => {
         next();
 
     } catch (error) {
+        if (error.name === "TokenExpiredError") {
+            return res.status(401).json({
+                message: "Token expired",
+                code: "TOKEN_EXPIRED",
+            });
+        }
         return res.status(401).json({
             message: "Invalid token",
         });

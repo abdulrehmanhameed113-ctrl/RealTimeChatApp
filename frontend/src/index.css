@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --wa-bg-main: #111B21;
+  --wa-bg-sidebar: #111B21;
+  --wa-bg-chat: #0C1317;
+  --wa-bg-panel: #202C33;
+  --wa-bg-panel-2: #1F2C34;
+  --wa-bg-hover: #2A3942;
+  --wa-bg-input: #2A3942;
+  --wa-bg-sent: #005C4B;
+  --wa-bg-received: #202C33;
+  --wa-green: #00A884;
+  --wa-green-light: #00CF9D;
+  --wa-text-primary: #E9EDEF;
+  --wa-text-secondary: #8696A0;
+  --wa-border: #313D43;
+  --wa-icon: #AEBAC1;
+  --wa-teal: #008069;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--wa-bg-main);
+  color: var(--wa-text-primary);
+}
+
+/* Custom scrollbar — WhatsApp style thin scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--wa-border);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--wa-text-secondary);
+}
+
+/* Message bubble tails using CSS */
+.bubble-sent {
+  position: relative;
+  background: var(--wa-bg-sent);
+  border-radius: 8px 0px 8px 8px;
+}
+.bubble-sent::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -8px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid var(--wa-bg-sent);
+  border-bottom: 8px solid transparent;
+}
+
+.bubble-received {
+  position: relative;
+  background: var(--wa-bg-received);
+  border-radius: 0px 8px 8px 8px;
+}
+.bubble-received::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-right: 8px solid var(--wa-bg-received);
+  border-bottom: 8px solid transparent;
+}
+
+/* Chat background pattern (subtle dots like WhatsApp) */
+.chat-bg {
+  background-color: var(--wa-bg-chat);
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23182229' fill-opacity='0.6'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Typing dots animation */
+@keyframes typing-dot {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+.typing-dot:nth-child(1) { animation: typing-dot 1.2s infinite 0s; }
+.typing-dot:nth-child(2) { animation: typing-dot 1.2s infinite 0.2s; }
+.typing-dot:nth-child(3) { animation: typing-dot 1.2s infinite 0.4s; }
+
+/* Slide in animation for messages */
+@keyframes msg-in-right {
+  from { opacity: 0; transform: translateX(10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes msg-in-left {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.msg-sent    { animation: msg-in-right 0.15s ease-out; }
+.msg-received { animation: msg-in-left  0.15s ease-out; }

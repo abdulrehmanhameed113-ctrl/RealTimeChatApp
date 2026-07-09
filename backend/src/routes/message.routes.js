@@ -8,9 +8,11 @@ const upload = require("../middleware/upload.middleware");
 const {
     sendMessage,
     getMessages,
+    markAsRead,
 } = require("../controllers/message.controller");
 
 router.post("/send/:id", protect, upload.single("image"), sendMessage);
+router.post("/read/:id", protect, markAsRead);
 
 router.get("/:id", protect, getMessages);
 

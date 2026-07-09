@@ -4,8 +4,6 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
 
 let io;
-
-
 const userSocketMap = {};
 
 const initializeSocket = (app) => {
@@ -37,7 +35,6 @@ const initializeSocket = (app) => {
         if (userId) {
             if (!userSocketMap[userId]) {
                 userSocketMap[userId] = new Set();
-                // Mark user as online in DB
                 try {
                     await User.findByIdAndUpdate(userId, { isOnline: true });
                     console.log(`User ${userId} marked online in DB`);
@@ -46,11 +43,57 @@ const initializeSocket = (app) => {
                 }
             }
             userSocketMap[userId].add(socket.id);
+
+            // Join all user's groups automatically on connect
+            const Group = require("../models/group.model");
+            try {
+                const userGroups = await Group.find({ members: userId });
+                userGroups.forEach((g) => {
+                    socket.join(g._id.toString());
+                    console.log(`Socket ${socket.id} joined room ${g._id}`);
+                });
+            } catch (error) {
+                console.error("Error joining user groups on socket connect:", error);
+            }
         }
 
         // Broadcast active online users to all clients
         io.emit("getOnlineUsers", Object.keys(userSocketMap));
         console.log("Current Online Users:", Object.keys(userSocketMap));
+
+        // Group rooms management
+        socket.on("joinGroupRoom", ({ groupId }) => {
+            socket.join(groupId);
+            console.log(`Socket ${socket.id} dynamically joined group room ${groupId}`);
+        });
+
+        socket.on("leaveGroupRoom", ({ groupId }) => {
+            socket.leave(groupId);
+            console.log(`Socket ${socket.id} dynamically left group room ${groupId}`);
+        });
+
+        // Real-time typing indicators
+        socket.on("typing", ({ senderId, receiverId, groupId }) => {
+            if (groupId) {
+                socket.to(groupId).emit("userTyping", { senderId, groupId });
+            } else {
+                const receiverSocketIds = getReceiverSocketIds(receiverId);
+                receiverSocketIds.forEach((socketId) => {
+                    io.to(socketId).emit("userTyping", { senderId });
+                });
+            }
+        });
+
+        socket.on("stopTyping", ({ senderId, receiverId, groupId }) => {
+            if (groupId) {
+                socket.to(groupId).emit("userStoppedTyping", { senderId, groupId });
+            } else {
+                const receiverSocketIds = getReceiverSocketIds(receiverId);
+                receiverSocketIds.forEach((socketId) => {
+                    io.to(socketId).emit("userStoppedTyping", { senderId });
+                });
+            }
+        });
 
         socket.on("disconnect", async () => {
             console.log("User Disconnected:", socket.id);
@@ -59,7 +102,6 @@ const initializeSocket = (app) => {
                 userSocketMap[userId].delete(socket.id);
                 if (userSocketMap[userId].size === 0) {
                     delete userSocketMap[userId];
-                    // Mark user as offline in DB
                     try {
                         await User.findByIdAndUpdate(userId, { isOnline: false });
                         console.log(`User ${userId} marked offline in DB`);
